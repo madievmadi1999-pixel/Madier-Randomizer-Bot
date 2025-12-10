@@ -1,0 +1,12 @@
+{
+  "name": "madier-randomizer-bot",
+  "version": "1.0.0",
+  "description": "Telegram Randomizer Bot (Magic 8 Ball)",
+  "main": "magic_bot.js",
+  "scripts": {
+    "start": "node magic_bot.js"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.61.0"
+  }
+}
