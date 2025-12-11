@@ -94,4 +94,16 @@ bot.on('message', (msg) => {
 
 
 console.log('Бот запущен и ожидает сообщений...');
+const express = require("express");
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("Telegram Bot is running!");
+});
+
+app.listen(port, () => {
+  console.log(Web server listening at port ${port});
+});
+
 
