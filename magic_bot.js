@@ -1,102 +1,53 @@
-const TelegramBot = require('node-telegram-bot-api');
+const { Telegraf } = require('telegraf');
+const express = require("express");
+const app = express();
 
-const token = '8596018406:AAFu9p79yTW3mRH4fTIAyE-XDXFzyTdO228'; 
-
-const bot = new TelegramBot(token, {polling: true});
+const bot = new Telegraf(process.env.BOT_TOKEN);
+const WEBHOOK_URL = process.env.RENDER_EXTERNAL_URL;
+const port = process.env.PORT || 3000;
 
 const answers = [
-    "✅ Да, это точно!",
-    "💯 Без сомнений.",
-    "💭 Мне кажется, да.",
-    "❓ Скорее всего.",
-    "🌟 Звезды говорят – Да!",
-    "🍀 Шансы очень высоки.",
-    "👍 Однозначно.",
-    "☀️ Ты можешь на это рассчитывать.",
-    "⬆️ Вселенная одобряет.",
-    "✅ Можешь не сомневаться.",
-    "✨ Исход благоприятен.",
-    "🎉 Абсолютно.",
-    "👑 Не сомневайся в успехе.",
-    "🌱 Все растет в твою пользу.",
-    "🎈 Самое время.",
-    "🔮 Предсказание: ДА!",
-
-    "🤔 Спроси позже.",
-    "⏳ Придётся подождать ответа.",
-    "🤐 Лучше не говорить сейчас.",
-    "🤫 Ответ скрыт туманом.",
-    "🌪️ Переформулируй вопрос.",
-    "🌑 Сейчас не время для ответа.",
-    "⚖️ Шансы 50/50.",
-    "⏸️ Ответ на паузе.",
-    "🤏 Маловероятно, но возможно.",
-    "🌀 Путь не ясен.",
-    "🌫️ Ответ пока не сформирован.",
-    "👂 Спроси кого-нибудь другого.",
-    "🧠 Задумайся об этом сам.",
-    "⏹️ Ответ временно недоступен.",
-    
-    "❌ Нет.",
-    "🚫 Очень сомневаюсь.",
-    "😔 Не рассчитывай на это.",
-    "💀 Мои источники говорят: нет.",
-    "📉 Вероятность низкая.",
-    "❄️ Исход будет отрицательным.",
-    "🌧️ Не в этот раз.",
-    "👎 Забудь об этом.",
-    "⬇️ Не в этой жизни.",
-    "⛔ Можешь даже не начинать.",
-    "🤷‍♀️ Попробуй что-нибудь другое.",
-    "🛑 Категорически нет.",
-    "💣 Ответ отрицательный и опасный.",
-    "📉 Падение вероятности.",
-    "❌ Можешь даже не пытаться.",
-    "🗿 Ты сам знаешь ответ.",
-    "😴 Слишком поздно/рано.",
-    "💥 Будет плохо.",
-    "🔥 Ответ сгорел.",
-    "🎲 Попробуй в другой раз.",
+    'Бесспорно',
+    'Мне кажется — «да»',
+    'Пока не ясно, попробуй позже',
+    'Не стоит',
+    'Да',
+    'Предрешено',
+    'Весьма сомнительно',
+    'Даже не думай',
+    'Перспективы не очень хорошие',
+    'Мой ответ — «нет»'
 ];
 
-bot.onText(/\/start/, (msg) => {
+bot.command('random', (msg) => {
     const chatId = msg.chat.id;
-    const botName = msg.from.username || 'MadierRandomizerBot';
-    const welcomeMessage = `🔮 Привет! Я — Магический Шар "${botName}". Задай мне вопрос, на который можно ответить "да" или "нет", и я дам тебе ответ!`;
-    bot.sendMessage(chatId, welcomeMessage);
-});
-
-bot.on('new_chat_members', (msg) => {
-    const isBotAdded = msg.new_chat_members.some(member => member.id === bot.options.id);
-
-    if (isBotAdded) {
-        const chatId = msg.chat.id;
-        const botName = msg.from.username || 'MadierRandomizerBot';
-        const welcomeMessage = `🔮 Привет! Я — Магический Шар "${botName}". Спасибо, что добавили меня! Я готов отвечать на ваши вопросы. Просто задайте мне вопрос, на который можно ответить "да" или "нет"!`;
-        
-        bot.sendMessage(chatId, welcomeMessage);
-    }
-});
-
-bot.on('message', (msg) => {
-    const chatId = msg.chat.id;
-    
-    if (!msg.text || msg.text.startsWith('/')) {
-        return;
-    }
-    
     const randomAnswer = answers[Math.floor(Math.random() * answers.length)];
-    
-    bot.sendMessage(chatId, randomAnswer, {
+    bot.telegram.sendMessage(chatId, randomAnswer);
+});
+
+bot.on('text', (msg) => {
+    const chatId = msg.chat.id;
+    const randomAnswer = answers[Math.floor(Math.random() * answers.length)];
+    bot.telegram.sendMessage(chatId, randomAnswer, {
         reply_to_message_id: msg.message_id
     });
 });
 
+bot.on('sticker', (msg) => {
+    const chatId = msg.chat.id;
+    bot.telegram.sendMessage(chatId, 'Клевый стикер!', {
+        reply_to_message_id: msg.message_id
+    });
+});
 
-console.log('Бот запущен и ожидает сообщений...');
-const express = require("express");
-const app = express();
-const port = process.env.PORT || 3000;
+if (WEBHOOK_URL) {
+    bot.telegram.setWebhook(${WEBHOOK_URL}/telegraf);
+    app.use(bot.webhookCallback('/telegraf'));
+    console.log(Webhook set to: ${WEBHOOK_URL}/telegraf);
+} else {
+    bot.launch();
+    console.log('Using Long Polling');
+}
 
 app.get("/", (req, res) => {
   res.send("Telegram Bot is running!");
@@ -105,5 +56,3 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(Web server listening at port ${port});
 });
-
-
