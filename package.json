@@ -7,6 +7,7 @@
     "start": "node magic_bot.js"
   },
   "dependencies": {
-    "node-telegram-bot-api": "^0.61.0"
+    "telegraf": "^4.16.1",
+    "express": "^4.19.2"
   }
 }
